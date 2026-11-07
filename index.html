@@ -275,6 +275,8 @@ const PLATFORMS = [
 const EXCLUDE = { 'I2SBoard': ['audio'], 'arduino-stk': ['dsp'], 'ESP32TransceiverIEEE802_15_4': ['wireless', 'boards'], 'esp32_vue_example': ['boards'], 'TinyCamera': ['boards'], 'idf-example-a2dp': ['tools'], 'idf-example-a2dp-platformio': ['tools'], 'idf-example-audio-tools': ['tools'], 'shogun-jvm': ['web'], 'smart-EDGAR': ['web'], 'stm32f411-adc': ['boards', 'dsp'], 'stm32-i2s': ['boards'], 'stm32-sai': ['boards'], 'stm32f723-disco': ['boards'], 'arduino-audiokit': ['boards'], 'jflightcontroller4pi': ['data'], 'scad4j': ['data'], 'codec-h264-ESP32P4': ['boards'], 'codec-h264-ESP32S3': ['boards'], 'arduino-vs1053': ['boards', 'codecs'], 'arduino-audio-driver': ['boards', 'codecs'] };
 // Projects listed under Audio & Streaming and nowhere else.
 const AUDIO_ONLY = ['stm32-sai', 'stm32f411-adc'];
+// Extra topics for a project, on top of the keyword matches.
+const ALSO = { 'TinyNTP': ['network'] };
 const TOPIC_BY_KEY = Object.fromEntries(TOPICS.map(t => [t.k, t]));
 
 function classify(r) {
@@ -283,6 +285,7 @@ function classify(r) {
   const keys = TOPICS.filter(t => t.k !== 'other' && !(EXCLUDE[r.n] || []).includes(t.k) && t.re.test(t.nameDesc ? nameDesc : text)).map(t => t.k);
   // Video codecs belong to Video & Graphics, not to Audio Codecs.
   if (keys.includes('video')) keys.splice(keys.indexOf('codecs') < 0 ? keys.length : keys.indexOf('codecs'), 1);
+  (ALSO[r.n] || []).forEach(k => { if (!keys.includes(k)) keys.push(k); });
   if (!keys.length) keys.push('other');
   // A2DP, radio, I2S and ADC projects are always Audio & Streaming.
   const forceAudio = !(EXCLUDE[r.n] || []).includes('audio') && /a2dp|radio|i2s|\badc\b|-adc/i.test(text);
