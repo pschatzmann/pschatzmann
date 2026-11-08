@@ -71,12 +71,6 @@ h1 {
 }
 .lede { margin: 0; max-width: 100%; font-size: 1.1rem; color: var(--muted); text-wrap: pretty; }
 .lede b { color: var(--ink); font-weight: 600; }
-.hero-links { display: flex; flex-wrap: wrap; gap: 8px 22px; font: 500 13px/1 var(--font-mono); padding-top: 4px; }
-.hero-links a { text-decoration: none; border-bottom: 1px solid var(--accent); padding-bottom: 3px; }
-.hero-links a:hover { color: var(--accent); }
-.scope { position: relative; height: 120px; }
-.scope canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.scope-label { position: absolute; right: 0; bottom: 8px; font: 400 11px/1 var(--font-mono); letter-spacing: .08em; color: var(--muted); text-transform: uppercase; }
 
 /* Layout */
 .main { display: grid; grid-template-columns: 15.5rem minmax(0, 1fr); gap: 36px; padding-block: 28px 64px; align-items: start; }
@@ -155,7 +149,6 @@ select.field { cursor: pointer; }
   .topic { width: auto; flex: none; grid-template-columns: 1.4em auto auto; border-color: var(--rule); white-space: nowrap; }
   .count { margin-left: 0; width: 100%; }
 }
-@media (max-width: 480px) { .scope { height: 90px; } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
@@ -163,16 +156,10 @@ select.field { cursor: pointer; }
 <header class="hero">
   <div class="wrap">
     <div class="hero-text">
-      <span class="eyebrow">Open-source embedded libraries</span>
+      <span class="eyebrow">Open-source libraries</span>
       <h1>Phil Schatzmann</h1>
       <p class="lede">I write C++ libraries that give Arduino, ESP32, RP2040 and STM32 boards <b>audio</b>, <b>codecs</b>, <b>speech</b> and <b>networking</b>. <span id="hero-stats"></span></p>
-      <div class="hero-links">
-        <a href="https://github.com/pschatzmann">github.com/pschatzmann</a>
-        <a href="https://www.pschatzmann.ch">pschatzmann.ch</a>
-        <a href="https://github.com/pschatzmann/arduino-audio-tools">Start with Audio Tools</a>
-      </div>
     </div>
-    <div class="scope" aria-hidden="true"><canvas id="scope"></canvas><span class="scope-label" id="scope-label">CH1 sine</span></div>
   </div>
 </header>
 
@@ -433,51 +420,6 @@ boot(`Snapshot from ${SNAPSHOT_DATE}. Only the forks you chose to show are liste
   } catch (e) { /* keep the snapshot */ }
 })();
 
-// Scope trace: one signal that morphs between waveforms.
-(() => {
-  const cv = $('scope'), ctx = cv.getContext('2d');
-  const shapes = [
-    ['sine', x => Math.sin(x)],
-    ['triangle', x => 2 / Math.PI * Math.asin(Math.sin(x))],
-    ['square', x => Math.tanh(7 * Math.sin(x))],
-    ['saw', x => { const u = ((x / (2 * Math.PI)) % 1 + 1) % 1; return 1.6 * (u - .5) * (1 - .04 * Math.cos(x)); }]
-  ];
-  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let w = 0, h = 0, dpr = 1;
-  function size() {
-    dpr = Math.min(devicePixelRatio || 1, 2);
-    w = cv.clientWidth; h = cv.clientHeight;
-    cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }
-  const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const ease = t => t * t * (3 - 2 * t);
-  function draw(ms) {
-    const hold = 3200, morph = 1100, slot = hold + morph;
-    const idx = Math.floor(ms / slot) % shapes.length, local = ms % slot;
-    const t = local < hold ? 0 : ease((local - hold) / morph);
-    const a = shapes[idx][1], b = shapes[(idx + 1) % shapes.length][1];
-    ctx.clearRect(0, 0, w, h);
-    ctx.strokeStyle = css('--rule'); ctx.lineWidth = 1;
-    ctx.beginPath();
-    const cols = Math.max(6, Math.round(w / 90));
-    for (let i = 0; i <= cols; i++) { const x = Math.round(i * w / cols) + .5; ctx.moveTo(x, 0); ctx.lineTo(x, h); }
-    for (let j = 0; j <= 4; j++) { const y = Math.round(j * (h - 1) / 4) + .5; ctx.moveTo(0, y); ctx.lineTo(w, y); }
-    ctx.globalAlpha = .55; ctx.stroke(); ctx.globalAlpha = 1;
-    const amp = h * .36, mid = h / 2, phase = ms / 1400, periods = w / 220;
-    ctx.beginPath();
-    for (let px = 0; px <= w; px += 2) {
-      const x = (px / w) * periods * 2 * Math.PI - phase;
-      const y = mid - amp * (a(x) * (1 - t) + b(x) * t);
-      px ? ctx.lineTo(px, y) : ctx.moveTo(px, y);
-    }
-    ctx.strokeStyle = css('--accent'); ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
-    $('scope-label').textContent = 'CH1 ' + shapes[t > .5 ? (idx + 1) % shapes.length : idx][0];
-  }
-  size(); addEventListener('resize', () => { size(); if (reduce) draw(0); });
-  if (reduce) { draw(0); return; }
-  const loop = ms => { draw(ms); requestAnimationFrame(loop); };
-  requestAnimationFrame(loop);
-})();
 </script>
 </body>
 </html>
