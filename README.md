@@ -2,13 +2,6 @@
 
 I write open-source C++ libraries that give Arduino, ESP32, RP2040 and STM32 boards audio, codecs, speech and networking.
 
-- [News](https://www.pschatzmann.ch)
-
-## Topics
-
-Click a topic to open the project page already filtered to it.
-
-
 <table width="100%">
   <tr>
       <td width="20%"><a href="https://pschatzmann.github.io/pschatzmann/">All projects</a></td>
@@ -46,3 +39,9 @@ Click a topic to open the project page already filtered to it.
       <td width="20%"></td>
   </tr>
 </table>
+
+
+## Important Links
+
+- [News](https://www.pschatzmann.ch)
+- [AudioTools](https://github.com/pschatzmann/arduino-audio-tools)
