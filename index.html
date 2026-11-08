@@ -276,6 +276,8 @@ function classify(r) {
   // Video codecs belong to Video & Graphics, not to Audio Codecs.
   if (keys.includes('video')) keys.splice(keys.indexOf('codecs') < 0 ? keys.length : keys.indexOf('codecs'), 1);
   (ALSO[r.n] || []).forEach(k => { if (!keys.includes(k)) keys.push(k); });
+  // Codecs are not Speech, even when their descriptions mention speech codecs.
+  if (keys.includes('codecs')) keys.splice(0, keys.length, ...keys.filter(k => k !== 'speech'));
   if (!keys.length) keys.push('other');
   // A2DP, radio, I2S and ADC projects are always Audio & Streaming.
   const forceAudio = !(EXCLUDE[r.n] || []).includes('audio') && /a2dp|radio|i2s|\badc\b|-adc/i.test(text);
