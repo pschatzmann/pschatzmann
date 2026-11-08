@@ -69,6 +69,7 @@ h1 {
   margin: 0; font: 700 clamp(1.4rem, 3vw, 1.85rem)/1.1 var(--font-display);
   letter-spacing: -.035em; text-wrap: balance;
 }
+.title-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
 .lede { margin: 0; max-width: 100%; font-size: 1.1rem; color: var(--muted); text-wrap: pretty; }
 .lede b { color: var(--ink); font-weight: 600; }
 
@@ -156,8 +157,10 @@ select.field { cursor: pointer; }
 <header class="hero">
   <div class="wrap">
     <div class="hero-text">
-      <span class="eyebrow">Open-source libraries</span>
-      <h1>Phil Schatzmann</h1>
+      <div class="title-row">
+        <h1>Phil Schatzmann</h1>
+        <span class="eyebrow">Open-source libraries</span>
+      </div>
       <p class="lede">I write C++ libraries that give Arduino, ESP32, RP2040 and STM32 boards <b>audio</b>, <b>codecs</b>, <b>speech</b> and <b>networking</b>. <span id="hero-stats"></span></p>
     </div>
   </div>
