@@ -142,8 +142,8 @@ select.field { cursor: pointer; }
   background: color-mix(in srgb, var(--st) 13%, transparent);
 }
 .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--st); }
-.st-active { --st: var(--st-active); } .st-maintained { --st: var(--st-maint); }
-.st-experimental { --st: var(--st-exp); } .st-dormant, .st-archived { --st: var(--st-dormant); }
+.st-active { --st: var(--st-active); } 
+.st-experimental { --st: var(--st-exp); } .st-archived { --st: var(--st-dormant); }
 .star { color: var(--copper); }
 .empty { padding: 40px 0; color: var(--muted); }
 .foot { padding-block: 0 40px; font: 400 12px/1.5 var(--font-mono); color: var(--muted); border-top: 1px solid var(--rule); padding-top: 18px; }
@@ -183,8 +183,7 @@ select.field { cursor: pointer; }
       <input class="field" id="q" type="search" placeholder="Search projects" aria-label="Search projects" autocomplete="off">
       <label for="status">Status
         <select class="field" id="status">
-          <option value="any">Any</option><option value="active">Active</option><option value="maintained">Maintained</option>
-          <option value="experimental">Experimental</option><option value="dormant">Dormant</option><option value="archived">Archived</option>
+          <option value="any">Any</option><option value="active">Active</option><option value="experimental">Experimental</option><option value="archived">Archived</option>
         </select>
       </label>
       <label for="sort">Sort
@@ -305,14 +304,12 @@ function classify(r) {
 function statusOf(r) {
   if (r.a) return 'archived';
   if (/^\s*(draft|poc)\b|work in progress/i.test(r.d || '')) return 'experimental';
-  const days = (Date.now() - new Date(r.p).getTime()) / 864e5;
-  return days <= 120 ? 'active' : days <= 365 ? 'maintained' : 'dormant';
+  return 'active';
 }
 const STATUS_HINT = {
-  active: 'Pushed within the last 4 months', maintained: 'Pushed within the last year',
-  experimental: 'Draft, proof of concept or work in progress', dormant: 'No pushes for over a year', archived: 'Archived on GitHub'
+  active: 'In use and available', experimental: 'Draft, proof of concept or work in progress', archived: 'Archived on GitHub'
 };
-const STATUS_LABEL = { active: 'Active', maintained: 'Maintained', experimental: 'Experimental', dormant: 'Dormant', archived: 'Archived' };
+const STATUS_LABEL = { active: 'Active', experimental: 'Experimental', archived: 'Archived' };
 
 const state = { platform: 'any', topic: 'all', q: '', status: 'any', sort: 'stars' };
 const $ = id => document.getElementById(id);
