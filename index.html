@@ -107,7 +107,6 @@ select.field { cursor: pointer; }
 .chip[aria-pressed="true"] { border-color: var(--accent); background: var(--surface); }
 .chip[aria-pressed="true"] svg.i, .chip[aria-pressed="true"] .n { color: var(--accent); }
 .tag { border: 1px solid var(--rule); border-radius: 3px; padding: 3px 5px; }
-.check { display: flex; align-items: center; gap: 6px; font: 500 13px/1 var(--font-body); color: var(--ink); cursor: pointer; }
 .count { margin-left: auto; font: 400 12px/1 var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
 
 /* Groups */
@@ -180,7 +179,6 @@ select.field { cursor: pointer; }
       <label for="sort">Sort
         <select class="field" id="sort"><option value="stars">Stars</option><option value="recent">Recently updated</option><option value="name">Name</option></select>
       </label>
-      <label class="check"><input type="checkbox" id="cmake"> CMake projects</label>
       <span class="count" id="count" role="status"></span>
     </div>
     <div class="platforms" id="platforms" role="group" aria-label="Platform"></div>
@@ -260,7 +258,8 @@ const PLATFORMS = [
   { k: 'web', label: 'Web', ic: 'web', re: /vue|html|javascript|typescript|jupyterlab|\bweb\b/i },
   { k: 'desktop', label: 'Linux / macOS / Windows', ic: 'video', re: /\bcmake\b|emulator|desktop|linux|windows|os\/x|macbook/i },
   { k: 'jvm', label: 'JVM', ic: 'data', re: /\bjava\b|scala|jvm/i },
-  { k: 'docker', label: 'Docker', ic: 'devops', re: /docker/i }
+  { k: 'docker', label: 'Docker', ic: 'devops', re: /docker/i },
+  { k: 'cmake', label: 'CMake', ic: 'tools', re: /(?!)/ }
 ];
 // Projects that must not appear under a topic even though a keyword matches.
 const EXCLUDE = { 'arduino-pocketfft': ['network'], 'I2SBoard': ['audio'], 'arduino-stk': ['dsp'], 'ESP32TransceiverIEEE802_15_4': ['wireless', 'boards'], 'esp32_vue_example': ['boards'], 'TinyCamera': ['boards'], 'idf-example-a2dp': ['tools'], 'idf-example-a2dp-platformio': ['tools'], 'idf-example-audio-tools': ['tools'], 'shogun-jvm': ['web'], 'smart-EDGAR': ['web'], 'stm32f411-adc': ['boards', 'dsp'], 'stm32-i2s': ['boards'], 'stm32-sai': ['boards'], 'stm32f723-disco': ['boards'], 'arduino-audiokit': ['boards'], 'jflightcontroller4pi': ['data'], 'scad4j': ['data'], 'codec-h264-ESP32P4': ['boards'], 'codec-h264-ESP32S3': ['boards'], 'arduino-vs1053': ['boards', 'codecs'], 'arduino-audio-driver': ['boards', 'codecs'] };
@@ -303,7 +302,7 @@ const STATUS_HINT = {
 };
 const STATUS_LABEL = { active: 'Active', experimental: 'Experimental', archived: 'Archived' };
 
-const state = { cmake: false, platform: 'any', topic: 'all', q: '', status: 'any', sort: 'stars' };
+const state = { platform: 'any', topic: 'all', q: '', status: 'any', sort: 'stars' };
 try {
   const qs = new URLSearchParams(location.search);
   if (TOPIC_BY_KEY[qs.get('topic')]) state.topic = qs.get('topic');
@@ -320,7 +319,7 @@ const HIDDEN = ['Mozzi-Old'];
 const CMAKE_FILES = ["arduino-audio-tools", "arduino-dlna", "Arduino-Emulator", "TinyGPU", "arduino-simple-tts", "TinyTTSTools", "TinyFTP", "TinyNTP", "logic-analyzer", "TinyRobotics", "arduino-espeak-ng", "SIDPlayer", "codec-helix", "codec-fdk-aac", "tinyusb-cpp", "TinyTTS", "TinyTelnetServer", "TinyHttp", "codec-mad", "codec-lame", "codec-amr", "arduino-stk", "arduino-midi-fileparser", "TinySMB", "TinyJPEG", "TinyFATFS", "TalkiePCM", "rp2040-i2s", "Mozzi-Old", "LDROBOT-LIDAR-STL", "idf-example-audio-tools", "fixedpoint-fft", "ESP32-A2DP", "codec-vorbis-tremor", "codec-sbc", "codec-opus", "codec-ogg", "codec-g7xx", "codec-flac", "codec-faad", "codec-alac", "codec-adpcm", "arduino-vs1053", "arduino-snapclient", "ArduinoMavlink", "arduino-audio-driver"];
 // Forks are skipped unless listed here.
 const INCLUDE_FORKS = ['kissfft', 'arduino-pocketfft', 'esp32-fft', 'codec-libfoxenflac', 'codec-shine', 'codec-tsdemux', 'codec-codec2', 'codec-g722', 'codec-gsm', 'codec-adpcm-xq', 'codec-openaptx', 'codec-lc3', 'codec-minimp3', 'lyra', 'faad2'];
-function prepare() { REPOS = REPOS.filter(r => !HIDDEN.includes(r.n)); REPOS.forEach(r => { classify(r); r.st = statusOf(r); r.cmake = CMAKE_FILES.includes(r.n) || (r.t || []).includes('cmake'); }); }
+function prepare() { REPOS = REPOS.filter(r => !HIDDEN.includes(r.n)); REPOS.forEach(r => { classify(r); r.st = statusOf(r); r.cmake = CMAKE_FILES.includes(r.n) || (r.t || []).includes('cmake'); if (r.cmake) r.plats.push('cmake'); }); }
 
 function sorted(list) {
   const f = { stars: (a, b) => b.s - a.s || a.n.localeCompare(b.n), recent: (a, b) => new Date(b.p) - new Date(a.p), name: (a, b) => a.n.localeCompare(b.n) }[state.sort];
@@ -329,7 +328,6 @@ function sorted(list) {
 function matches(r) {
   if (state.status !== 'any' && r.st !== state.status) return false;
   if (state.platform !== 'any' && !r.plats.includes(state.platform)) return false;
-  if (state.cmake && !r.cmake) return false;
   const q = state.q.trim().toLowerCase();
   return !q || `${r.n} ${r.d || ''} ${(r.t || []).join(' ')} ${r.l || ''}`.toLowerCase().includes(q);
 }
@@ -403,7 +401,6 @@ $('platforms').addEventListener('click', e => {
 });
 $('q').addEventListener('input', e => { state.q = e.target.value; render(); });
 $('status').addEventListener('change', e => { state.status = e.target.value; render(); });
-$('cmake').addEventListener('change', e => { state.cmake = e.target.checked; render(); });
 $('sort').addEventListener('change', e => { state.sort = e.target.value; render(); });
 
 function boot(sourceNote) {
