@@ -246,7 +246,7 @@ const TOPICS = [
 const OVERRIDE = {
   'arduino-audio-tools': 'audio', 'arduino-audio-driver': 'audio', 'arduino-audiokit': 'audio', 'stm32-sai': 'audio', 'arduino-vs1053': 'audio',
   'ESP32-A2DP': 'audio', 'stm32-i2s': 'audio', 'arduino-dlna': 'audio', 'arduino-aoo': 'audio', 'TangNanoGPU': 'fpga',
-  'TangNanoFaust': 'fpga', 'stm32f411-adc': 'audio', 'logic-analyzer': 'tools', 'arduino-SQLite': 'tools', 'TinyWifiDongle': 'network',
+  'TangNanoFaust': 'fpga', 'stm32f411-adc': 'audio', 'logic-analyzer': 'tools', 'arduino-SQLite': 'tools', 'TinyCompression': 'tools', 'TinyWifiDongle': 'network',
   'esp32_vue_example': 'web', 'codec-codec2': 'codecs', 'codec-g722': 'codecs', 'codec-gsm': 'codecs', 'lyra': 'codecs', 'faad2': 'codecs', 'ESP32TransceiverIEEE802_15_4': 'network', 'TinyCamera': 'video', 'idf-example-a2dp': 'audio', 'idf-example-a2dp-platformio': 'audio', 'idf-example-audio-tools': 'audio', 'jflightcontroller4pi': 'robotics', 'scad4j': 'd3', 'arduino-libilbc': 'codecs', 'tflite-micro': 'ml', 'stm32f723-disco': 'audio', 'TinyH264': 'video'
 };
 // Platforms a project runs on. A project can belong to several.
@@ -267,7 +267,7 @@ const EXCLUDE = { 'arduino-pocketfft': ['network'], 'I2SBoard': ['audio'], 'ardu
 // Projects listed under Audio & Streaming and nowhere else.
 const AUDIO_ONLY = ['stm32-sai', 'stm32f411-adc'];
 // Extra topics for a project, on top of the keyword matches.
-const ALSO = { 'TinyNTP': ['network'], 'arduino-midi': ['audio'], 'faad2': ['codecs'], 'lyra': ['codecs'] };
+const ALSO = { 'TinyNTP': ['network'], 'TinyCompression': ['dsp'],'arduino-midi': ['audio'], 'faad2': ['codecs'], 'lyra': ['codecs'] };
 const TOPIC_BY_KEY = Object.fromEntries(TOPICS.map(t => [t.k, t]));
 
 function classify(r) {
